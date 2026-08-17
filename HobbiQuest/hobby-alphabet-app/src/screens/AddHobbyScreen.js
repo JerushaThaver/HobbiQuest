@@ -14,34 +14,26 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, radius, spacing, typography } from '../theme/colors';
-import { loadEntries, saveEntry, deleteEntry } from '../utils/storage';
-import { hobbySuggestions } from '../data/hobbySuggestions';
+import { addHobby } from '../utils/storage';
+import { hobbySuggestions, CATEGORIES } from '../data/hobbySuggestions';
 
 const STAR_VALUES = [1, 2, 3, 4, 5];
 
-export default function HobbyDetailScreen({ route, navigation }) {
-  const { letter } = route.params;
+export default function AddHobbyScreen({ route, navigation }) {
+  const { letter, suggestedName, suggestedLetter } = route.params;
+  const resolvedLetter = suggestedLetter || letter;
 
-  const [hobbyName, setHobbyName] = useState('');
-  const [note, setNote] = useState('');
+  const [hobbyName, setHobbyName] = useState(suggestedName || '');
+  const [category, setCategory] = useState('Other');
+  const [notes, setNotes] = useState('');
   const [rating, setRating] = useState(0);
   const [photoUri, setPhotoUri] = useState(null);
-  const [dateCompleted, setDateCompleted] = useState(null);
+  const [tracking, setTracking] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    navigation.setOptions({ title: `Letter ${letter}` });
-    loadEntries().then((entries) => {
-      const existing = entries[letter];
-      if (existing) {
-        setHobbyName(existing.hobbyName || '');
-        setNote(existing.note || '');
-        setRating(existing.rating || 0);
-        setPhotoUri(existing.photoUri || null);
-        setDateCompleted(existing.dateCompleted || null);
-      }
-    });
-  }, [letter]);
+    navigation.setOptions({ title: `Add Hobby · ${resolvedLetter}` });
+  }, [resolvedLetter]);
 
   const takePhoto = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -78,51 +70,33 @@ export default function HobbyDetailScreen({ route, navigation }) {
 
   const handleSave = async () => {
     if (!hobbyName.trim()) {
-      Alert.alert('Add a hobby name', 'Give this letter a hobby before saving.');
+      Alert.alert('Add a hobby name', 'Give this hobby a name before saving.');
       return;
     }
     setSaving(true);
     try {
-      await saveEntry(letter, {
-        hobbyName: hobbyName.trim(),
-        note: note.trim(),
+      await addHobby(resolvedLetter, {
+        name: hobbyName.trim(),
+        category,
+        notes: notes.trim(),
         rating,
         photoUri,
-        dateCompleted: dateCompleted || new Date().toISOString(),
+        tracking,
       });
       navigation.goBack();
     } catch (e) {
-      Alert.alert('Something went wrong', 'Could not save this entry. Try again.');
+      Alert.alert('Something went wrong', 'Could not save this hobby. Try again.');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert('Remove entry?', `This clears the hobby you logged for ${letter}.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteEntry(letter);
-          navigation.goBack();
-        },
-      },
-    ]);
-  };
-
-  const suggestions = hobbySuggestions[letter] || [];
+  const suggestions = hobbySuggestions[resolvedLetter] || [];
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scroll}>
-          <Text style={styles.letterBadge}>{letter}</Text>
-
           <TouchableOpacity style={styles.photoBox} onPress={takePhoto} activeOpacity={0.8}>
             {photoUri ? (
               <Image source={{ uri: photoUri }} style={styles.photo} />
@@ -152,18 +126,29 @@ export default function HobbyDetailScreen({ route, navigation }) {
           />
 
           {suggestions.length > 0 && (
-            <View style={styles.suggestionsRow}>
+            <View style={styles.chipsRow}>
               {suggestions.map((s) => (
-                <TouchableOpacity
-                  key={s}
-                  style={styles.suggestionChip}
-                  onPress={() => setHobbyName(s)}
-                >
-                  <Text style={styles.suggestionChipText}>{s}</Text>
+                <TouchableOpacity key={s} style={styles.chip} onPress={() => setHobbyName(s)}>
+                  <Text style={styles.chipText}>{s}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           )}
+
+          <Text style={styles.fieldLabel}>CATEGORY</Text>
+          <View style={styles.chipsRow}>
+            {CATEGORIES.map((c) => (
+              <TouchableOpacity
+                key={c}
+                style={[styles.chip, category === c && styles.chipActive]}
+                onPress={() => setCategory(c)}
+              >
+                <Text style={[styles.chipText, category === c && styles.chipTextActive]}>
+                  {c}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           <Text style={styles.fieldLabel}>RATING</Text>
           <View style={styles.starsRow}>
@@ -179,22 +164,32 @@ export default function HobbyDetailScreen({ route, navigation }) {
             style={[styles.input, styles.textArea]}
             placeholder="What did you try? Would you do it again?"
             placeholderTextColor={colors.textMuted}
-            value={note}
-            onChangeText={setNote}
+            value={notes}
+            onChangeText={setNotes}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
           />
 
-          <TouchableOpacity style={styles.primaryButton} onPress={handleSave} disabled={saving}>
-            <Text style={styles.primaryButtonText}>{saving ? 'Saving...' : 'Save Entry'}</Text>
+          <TouchableOpacity
+            style={styles.trackingRow}
+            onPress={() => setTracking((prev) => !prev)}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.checkbox, tracking && styles.checkboxActive]}>
+              {tracking && <Text style={styles.checkboxMark}>✓</Text>}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.trackingTitle}>Track this hobby</Text>
+              <Text style={styles.trackingSubtitle}>
+                Log sessions and photos over time in the Hobby Tracker.
+              </Text>
+            </View>
           </TouchableOpacity>
 
-          {dateCompleted && (
-            <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-              <Text style={styles.deleteButtonText}>Remove Entry</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity style={styles.primaryButton} onPress={handleSave} disabled={saving}>
+            <Text style={styles.primaryButtonText}>{saving ? 'Saving...' : 'Save Hobby'}</Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -202,20 +197,8 @@ export default function HobbyDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scroll: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl,
-  },
-  letterBadge: {
-    ...typography.h1,
-    fontSize: 34,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
+  container: { flex: 1, backgroundColor: colors.background },
+  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
   photoBox: {
     width: '100%',
     aspectRatio: 4 / 3,
@@ -225,19 +208,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  photo: {
-    width: '100%',
-    height: '100%',
-  },
-  photoPlaceholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoPlaceholderText: {
-    ...typography.body,
-    color: colors.textMuted,
-  },
+  photo: { width: '100%', height: '100%' },
+  photoPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  photoPlaceholderText: { ...typography.body, color: colors.textMuted },
   photoActionsRow: {
     flexDirection: 'row',
     marginTop: spacing.sm,
@@ -253,10 +226,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     alignItems: 'center',
   },
-  secondaryButtonText: {
-    ...typography.bodyBold,
-    color: colors.textPrimary,
-  },
+  secondaryButtonText: { ...typography.bodyBold, color: colors.textPrimary },
   fieldLabel: {
     ...typography.label,
     color: colors.textSecondary,
@@ -273,37 +243,56 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
   },
-  textArea: {
-    minHeight: 100,
-    paddingTop: spacing.sm,
-  },
-  suggestionsRow: {
+  textArea: { minHeight: 100, paddingTop: spacing.sm },
+  chipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: spacing.sm,
     gap: spacing.xs,
   },
-  suggestionChip: {
-    backgroundColor: colors.accentMuted,
+  chip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
   },
-  suggestionChipText: {
-    ...typography.caption,
-    color: colors.accentDark,
+  chipActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
-  starsRow: {
+  chipText: { ...typography.caption, color: colors.textPrimary },
+  chipTextActive: { color: colors.white },
+  starsRow: { flexDirection: 'row', gap: spacing.xs },
+  star: { fontSize: 32, color: colors.borderStrong },
+  starActive: { color: colors.warning },
+  trackingRow: {
     flexDirection: 'row',
-    gap: spacing.xs,
+    alignItems: 'flex-start',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.lg,
   },
-  star: {
-    fontSize: 32,
-    color: colors.borderStrong,
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    marginRight: spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  starActive: {
-    color: colors.warning,
+  checkboxActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
+  checkboxMark: { color: colors.white, fontSize: 14, fontWeight: '700' },
+  trackingTitle: { ...typography.bodyBold, color: colors.textPrimary },
+  trackingSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
   primaryButton: {
     backgroundColor: colors.accent,
     borderRadius: radius.md,
@@ -311,16 +300,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.lg,
   },
-  primaryButtonText: {
-    ...typography.bodyBold,
-    color: colors.white,
-  },
-  deleteButton: {
-    alignItems: 'center',
-    marginTop: spacing.md,
-  },
-  deleteButtonText: {
-    ...typography.body,
-    color: colors.warning,
-  },
+  primaryButtonText: { ...typography.bodyBold, color: colors.white },
 });
