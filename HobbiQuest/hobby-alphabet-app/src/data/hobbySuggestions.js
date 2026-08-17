@@ -1,10 +1,9 @@
 export const CATEGORIES = [
   'Creative',
-  'Outdoor',
   'Physical',
   'Social',
   'Relaxation',
-  'Learning',
+  'Intellectual',
   'Other',
 ];
 
@@ -22,7 +21,7 @@ export const hobbySuggestions = {
   K: ['Kayaking', 'Knitting', 'Kite Flying'],
   L: ['Leatherworking', 'Longboarding', 'Letterpress'],
   M: ['Macrame', 'Model Building', 'Mixology'],
-  N: ['Needlepoint', 'Nature Photography', 'Numismatics'],
+  N: ['Needlepoint', 'Nails', 'Numismatics'],
   O: ['Origami', 'Orienteering', 'Oil Painting'],
   P: ['Pottery', 'Photography', 'Puzzles'],
   Q: ['Quilting', 'Quidditch (Muggle)', 'Quilling'],
