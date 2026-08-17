@@ -16,7 +16,7 @@ export default function QuickActionCard({ iconName, label, onPress }) {
 
 const styles = StyleSheet.create({
   card: {
-    width: '31%',
+    width: '31.5%',
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
