@@ -61,7 +61,7 @@ export default function LetterDetailScreen({ route, navigation }) {
           <TouchableOpacity
             key={hobby.id}
             style={styles.hobbyCard}
-            onPress={() => navigation.navigate('HobbyProfile', { letter, hobbyId: hobby.id })}
+            onPress={() => navigation.navigate('Alphabet', { screen: 'HobbyProfile', params: { letter, hobbyId: hobby.id } })}
             onLongPress={() => handleDelete(hobby)}
             activeOpacity={0.8}
           >
@@ -87,7 +87,7 @@ export default function LetterDetailScreen({ route, navigation }) {
 
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate('AddHobby', { letter })}
+          onPress={() => navigation.navigate('Alphabet', { screen: 'AddHobby', params: { letter } })}
         >
           <Text style={styles.addButtonText}>+ Add Hobby</Text>
         </TouchableOpacity>

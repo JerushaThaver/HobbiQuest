@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, radius, spacing, typography } from '../theme/colors';
 import { addSession } from '../utils/storage';
@@ -89,11 +90,16 @@ export default function LogSessionScreen({ route, navigation }) {
           <View style={styles.moodRow}>
             {MOODS.map((m) => (
               <TouchableOpacity
-                key={m}
-                style={[styles.moodButton, mood === m && styles.moodButtonActive]}
-                onPress={() => setMood(m)}
+                key={m.name}
+                style={[styles.moodButton, mood === m.name && styles.moodButtonActive]}
+                onPress={() => setMood(m.name)}
+                activeOpacity={0.8}
               >
-                <Text style={styles.moodEmoji}>{m}</Text>
+                <Ionicons
+                  name={m.icon}
+                  size={22}
+                  color={mood === m.name ? colors.accent : colors.textSecondary}
+                />
               </TouchableOpacity>
             ))}
           </View>

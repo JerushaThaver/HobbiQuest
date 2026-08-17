@@ -6,13 +6,13 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, spacing, radius, typography } from '../theme/colors';
 import StatTile from '../components/StatTile';
 import QuickActionCard from '../components/QuickActionCard';
-import { getStats, getRecentActivity } from '../utils/storage';
+import { getStats, getRecentActivity, getCurrentStreak } from '../utils/storage';
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -41,16 +41,20 @@ export default function HomeScreen({ navigation }) {
     avgRating: null,
   });
   const [recentActivity, setRecentActivity] = useState([]);
+  const [streak, setStreak] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      Promise.all([getStats(), getRecentActivity(3)]).then(([s, activity]) => {
-        if (active) {
-          setStats(s);
-          setRecentActivity(activity);
+      Promise.all([getStats(), getRecentActivity(3), getCurrentStreak()]).then(
+        ([s, activity, currentStreak]) => {
+          if (active) {
+            setStats(s);
+            setRecentActivity(activity);
+            setStreak(currentStreak);
+          }
         }
-      });
+      );
       return () => {
         active = false;
       };
@@ -59,37 +63,85 @@ export default function HomeScreen({ navigation }) {
 
   const mostRecent = recentActivity[0];
 
-  const comingSoon = (feature) =>
-    Alert.alert('Coming soon', `${feature} is planned for a future update.`);
+  const randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const randomLetter = randomLetters[Math.floor(Math.random() * randomLetters.length)];
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.greeting}>{getGreeting()}!</Text>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Brand Header */}
+        <View style={styles.brandHeader}>
+          <Text style={styles.brandName}>HobbiQuest</Text>
+          <Text style={styles.brandTagline}>Discover. Explore. Track.</Text>
+        </View>
+
+        {/* Greeting */}
+        <Text style={styles.greeting}>{getGreeting()}! </Text>
         <Text style={styles.subheading}>What are you exploring today?</Text>
 
-        <Text style={styles.sectionLabel}>YOUR PROGRESS</Text>
-        <View style={styles.statsRow}>
-          <StatTile value={`${stats.lettersCompleted}/26`} label="Letters" />
-          <StatTile value={stats.hobbiesAdded} label="Hobbies" />
-          <StatTile value={stats.hobbiesTracked} label="Tracked" />
-        </View>
-        <View style={styles.statsRow}>
-          <StatTile value={stats.totalSessions} label="Sessions logged" />
-          <StatTile value={stats.avgRating ?? '—'} label="Avg rating" />
+        {/* Streak & Progress Card */}
+        <View style={styles.progressCard}>
+          <View style={styles.streakContainer}>
+            <View style={styles.iconBadge}>
+              <Ionicons name="flame" size={22} color={colors.accent} />
+            </View>
+            <View>
+              <Text style={styles.streakLabel}>Current Streak</Text>
+              <Text style={styles.streakValue}>{streak} days</Text>
+            </View>
+          </View>
+
+          <View style={styles.progressContainer}>
+            <Text style={styles.progressLabel}>
+              {stats.lettersCompleted} / 26
+            </Text>
+            <View style={styles.progressBar}>
+              <View
+                style={[
+                  styles.progressFill,
+                  { width: `${(stats.lettersCompleted / 26) * 100}%` },
+                ]}
+              />
+            </View>
+            <Text style={styles.progressText}>Letters completed</Text>
+          </View>
         </View>
 
-        {mostRecent ? (
-          <>
-            <Text style={styles.sectionLabel}>CONTINUE WHERE YOU LEFT OFF</Text>
+        {/* Today's Prompt */}
+        <View style={styles.promptCard}>
+          <View style={styles.promptIconWrap}>
+            <Ionicons name="sparkles" size={24} color={colors.accent} />
+          </View>
+          <View style={styles.promptContent}>
+            <Text style={styles.promptLabel}>Today's Prompt</Text>
+            <Text style={styles.promptText}>
+              Try something new that starts with {randomLetter}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.promptButton}
+            onPress={() => navigation.navigate('Alphabet')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.promptButtonText}>Go</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Continue Where You Left Off */}
+        {mostRecent && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Continue Where You Left Off</Text>
             <TouchableOpacity
               style={styles.continueCard}
               onPress={() =>
-                navigation.navigate('LetterDetail', { letter: mostRecent.letter })
+                navigation.navigate('Alphabet', {
+                  screen: 'LetterDetail',
+                  params: { letter: mostRecent.letter },
+                })
               }
               activeOpacity={0.8}
             >
-              <View style={{ flex: 1 }}>
+              <View style={styles.continueContent}>
                 <Text style={styles.continueHobby}>{mostRecent.hobbyName}</Text>
                 <Text style={styles.continueMeta}>
                   Letter {mostRecent.letter} · {formatRelativeDate(mostRecent.date)}
@@ -97,65 +149,54 @@ export default function HomeScreen({ navigation }) {
               </View>
               <Text style={styles.continueArrow}>›</Text>
             </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <Text style={styles.sectionLabel}>GET STARTED</Text>
-            <TouchableOpacity
-              style={styles.continueCard}
-              onPress={() => navigation.navigate('Alphabet')}
-              activeOpacity={0.8}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.continueHobby}>Add your first hobby</Text>
-                <Text style={styles.continueMeta}>Start anywhere on the alphabet</Text>
-              </View>
-              <Text style={styles.continueArrow}>›</Text>
-            </TouchableOpacity>
-          </>
+          </View>
         )}
 
-        <Text style={styles.sectionLabel}>QUICK ACTIONS</Text>
-        <View style={styles.actionsGrid}>
-          <QuickActionCard
-            emoji="🔤"
-            label="Hobby Alphabet"
-            onPress={() => navigation.navigate('Alphabet')}
-          />
-          <QuickActionCard
-            emoji="📅"
-            label="Calendar"
-            onPress={() => navigation.navigate('Calendar')}
-          />
-          <QuickActionCard
-            emoji="📖"
-            label="Hobby Tracker"
-            onPress={() => navigation.navigate('HobbyTracker')}
-          />
-          <QuickActionCard
-            emoji="➕"
-            label="Add Hobby"
-            onPress={() => navigation.navigate('Alphabet')}
-          />
-          <QuickActionCard
-            emoji="🎲"
-            label="Random Letter"
-            onPress={() => {
-              const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-              const letter = letters[Math.floor(Math.random() * letters.length)];
-              navigation.navigate('LetterDetail', { letter });
-            }}
-          />
-          <QuickActionCard
-            emoji="📊"
-            label="Stats"
-            onPress={() => navigation.navigate('Stats')}
-          />
-          <QuickActionCard
-            emoji="✨"
-            label="Discover"
-            onPress={() => navigation.navigate('RandomHobby')}
-          />
+        {/* Stats Summary */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Your Progress</Text>
+          <View style={styles.statsRow}>
+            <StatTile value={stats.hobbiesAdded} label="Hobbies" />
+            <StatTile value={stats.hobbiesTracked} label="Tracked" />
+            <StatTile value={stats.totalSessions} label="Sessions" />
+          </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionsGrid}>
+            <QuickActionCard
+              iconName="library-outline"
+              label="Alphabet"
+              onPress={() => navigation.navigate('Alphabet', { screen: 'AlphabetScreen' })}
+            />
+            <QuickActionCard
+              iconName="book-outline"
+              label="Tracker"
+              onPress={() => navigation.navigate('Tracker', { screen: 'HobbyTrackerScreen' })}
+            />
+            <QuickActionCard
+              iconName="calendar-outline"
+              label="Calendar"
+              onPress={() => navigation.navigate('Home', { screen: 'Calendar' })}
+            />
+            <QuickActionCard
+              iconName="stats-chart-outline"
+              label="Stats"
+              onPress={() => navigation.navigate('Home', { screen: 'Stats' })}
+            />
+            <QuickActionCard
+              iconName="sparkles-outline"
+              label="Discover"
+              onPress={() => navigation.navigate('Profile', { screen: 'RandomHobby' })}
+            />
+            <QuickActionCard
+              iconName="trophy-outline"
+              label="Achievements"
+              onPress={() => navigation.navigate('Profile', { screen: 'Achievements' })}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -171,24 +212,139 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
   },
+  brandHeader: {
+    marginBottom: spacing.lg,
+  },
+  brandName: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.accent,
+    marginBottom: spacing.xs,
+  },
+  brandTagline: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
   greeting: {
-    ...typography.h1,
+    ...typography.h2,
     color: colors.textPrimary,
+    marginBottom: spacing.xs,
   },
   subheading: {
     ...typography.body,
     color: colors.textSecondary,
-    marginTop: 2,
+    marginBottom: spacing.lg,
   },
-  sectionLabel: {
-    ...typography.label,
-    color: colors.textSecondary,
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
+  progressCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  statsRow: {
+  streakContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  iconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.accentMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  streakLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+  },
+  streakValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.accent,
+  },
+  progressContainer: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
+  },
+  progressLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textPrimary,
     marginBottom: spacing.sm,
+  },
+  progressBar: {
+    height: 10,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginBottom: spacing.sm,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.accent,
+  },
+  progressText: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  promptCard: {
+    backgroundColor: colors.accentMuted,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
+  promptIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  promptContent: {
+    flex: 1,
+  },
+  promptLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    fontWeight: '600',
+  },
+  promptText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  promptButton: {
+    backgroundColor: colors.accent,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  promptButtonText: {
+    color: colors.surface,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  section: {
+    marginBottom: spacing.lg,
+  },
+  sectionTitle: {
+    ...typography.h3,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
   },
   continueCard: {
     flexDirection: 'row',
@@ -196,26 +352,33 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     padding: spacing.md,
   },
+  continueContent: {
+    flex: 1,
+  },
   continueHobby: {
-    ...typography.bodyBold,
+    fontWeight: '600',
     color: colors.textPrimary,
+    marginBottom: spacing.xs,
   },
   continueMeta: {
-    ...typography.caption,
+    fontSize: 12,
     color: colors.textSecondary,
-    marginTop: 2,
   },
   continueArrow: {
-    fontSize: 26,
+    fontSize: 20,
     color: colors.accent,
-    marginLeft: spacing.sm,
+    fontWeight: '600',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
   },
   actionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    gap: spacing.md,
   },
 });

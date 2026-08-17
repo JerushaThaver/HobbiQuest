@@ -21,7 +21,13 @@ export function formatRelativeDate(iso) {
   return formatShortDate(iso);
 }
 
-export const MOODS = ['😞', '😐', '🙂', '😄', '🤩'];
+export const MOODS = [
+  { name: 'Low', icon: 'sad-outline' },
+  { name: 'Okay', icon: 'happy-outline' },
+  { name: 'Good', icon: 'thumbs-up-outline' },
+  { name: 'Great', icon: 'sparkles-outline' },
+  { name: 'Amazing', icon: 'rocket-outline' },
+];
 
 // ---- Calendar utilities ----
 

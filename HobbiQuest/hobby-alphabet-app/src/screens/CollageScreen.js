@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing, typography } from '../theme/colors';
 import { getAllHobbiesFlat } from '../utils/storage';
 
@@ -78,7 +79,7 @@ export default function CollageScreen({ navigation }) {
                     />
                   ) : (
                     <View style={styles.collagePhotoPlaceholder}>
-                      <Text style={styles.placeholderEmoji}>📸</Text>
+                      <Ionicons name="images-outline" size={22} color={colors.accent} />
                     </View>
                   )}
 
@@ -112,7 +113,7 @@ export default function CollageScreen({ navigation }) {
             onPress={handleSave}
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryButtonText}>💾 Save Collage</Text>
+            <Text style={styles.primaryButtonText}>Save Collage</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -120,7 +121,7 @@ export default function CollageScreen({ navigation }) {
             onPress={handleShare}
             activeOpacity={0.8}
           >
-            <Text style={styles.secondaryButtonText}>📤 Share My Alphabet</Text>
+            <Text style={styles.secondaryButtonText}>Share My Alphabet</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

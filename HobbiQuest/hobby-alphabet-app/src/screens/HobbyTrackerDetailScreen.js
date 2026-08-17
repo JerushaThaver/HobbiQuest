@@ -58,7 +58,7 @@ export default function HobbyTrackerDetailScreen({ route, navigation }) {
   };
 
   const handleLogActivity = () => {
-    navigation.navigate('LogSession', { letter, hobbyId });
+    navigation.navigate('Tracker', { screen: 'LogSession', params: { letter, hobbyId } });
   };
 
   if (!hobby) {

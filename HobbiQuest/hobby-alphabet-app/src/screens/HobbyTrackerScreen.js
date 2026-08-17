@@ -92,7 +92,7 @@ export default function HobbyTrackerScreen({ navigation }) {
   };
 
   const handleTapHobby = (hobby) => {
-    navigation.navigate('HobbyTrackerDetail', { letter: hobby.letter, hobbyId: hobby.id });
+    navigation.navigate('Tracker', { screen: 'HobbyTrackerDetail', params: { letter: hobby.letter, hobbyId: hobby.id } });
   };
 
   const renderHobbyCard = ({ item: hobby }) => {

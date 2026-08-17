@@ -7,6 +7,7 @@ import {
   View,
   FlatList,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, radius, spacing, typography } from '../theme/colors';
 import { getAllAchievementsWithProgress } from '../utils/storage';
@@ -25,6 +26,20 @@ export default function AchievementsScreen() {
     }, [loadAchievements])
   );
 
+  const getAchievementIcon = (id) => {
+    const icons = {
+      'first-step': 'footsteps-outline',
+      'getting-started': 'leaf-outline',
+      'hobby-explorer': 'compass-outline',
+      'seven-day-streak': 'flame-outline',
+      'memory-keeper': 'images-outline',
+      committed: 'target-outline',
+      'halfway-there': 'diamond-outline',
+      'alphabet-master': 'trophy-outline',
+    };
+    return icons[id] || 'star-outline';
+  };
+
   const renderAchievementCard = ({ item: achievement }) => {
     const { unlocked, progress } = achievement;
     const progressPercent = progress
@@ -40,8 +55,8 @@ export default function AchievementsScreen() {
       >
         {/* Icon */}
         <View style={styles.iconContainer}>
-          <Text style={styles.achievementIcon}>{achievement.icon}</Text>
-          {!unlocked && <Text style={styles.lockIcon}>🔒</Text>}
+          <Ionicons name={getAchievementIcon(achievement.id)} size={34} color={unlocked ? colors.accent : colors.textMuted} />
+          {!unlocked && <Ionicons name="lock-closed-outline" size={14} color={colors.textMuted} style={styles.lockIcon} />}
         </View>
 
         {/* Content */}

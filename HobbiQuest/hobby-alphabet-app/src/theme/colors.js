@@ -1,28 +1,29 @@
-// Warm, earthy, professional color palette.
-// Cream base, brown/charcoal text, sage completion accent, ochre for ratings.
+// Sage green & cream aesthetic
+// Primary brand color: muted sage green
+// Background: warm cream, text: charcoal, accents: sage green
 
 export const colors = {
-  background: '#F5F1E8',       // warm cream
-  surface: '#FFFDF8',          // cards
-  surfaceMuted: '#EAE1D5',     // soft beige panels / empty tiles
+  background: '#F9F8F6',       // warm cream background
+  surface: '#FFFFFF',          // white cards
+  surfaceMuted: '#F0EDE9',     // soft beige/cream for empty states
 
-  border: '#E1D5C4',
-  borderStrong: '#D8C8B8',     // light brown
+  border: '#E8E3DB',           // subtle border
+  borderStrong: '#DDD5CA',     // stronger border
 
-  textPrimary: '#3E3028',      // dark brown
-  textSecondary: '#7A6A5C',    // warm gray-brown
-  textMuted: '#A79688',
+  textPrimary: '#2C2C2C',      // dark charcoal
+  textSecondary: '#6B7060',    // muted warm gray-green
+  textMuted: '#9A9485',        // lighter muted
 
-  accent: '#795548',           // primary brown
-  accentMuted: '#EAE1D5',      // accent tint for backgrounds
-  accentDark: '#3E3028',
+  accent: '#7A8664',           // PRIMARY: muted sage green
+  accentMuted: '#E8EBE1',      // light sage tint
+  accentDark: '#5C6A4C',       // darker sage for active states
 
-  success: '#7A8664',          // muted olive/sage (completed)
-  successMuted: '#E9ECE3',
+  success: '#7A8664',          // same as accent (sage)
+  successMuted: '#E8EBE1',     // light sage
 
-  warning: '#B78335',          // warm ochre (ratings)
+  warning: '#B8956A',          // warm tan/ochre for ratings
 
-  overlay: 'rgba(62, 48, 40, 0.45)',
+  overlay: 'rgba(44, 44, 44, 0.45)',
 
   white: '#FFFFFF',
   black: '#000000',

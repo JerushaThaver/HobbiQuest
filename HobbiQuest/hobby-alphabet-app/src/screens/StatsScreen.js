@@ -163,10 +163,10 @@ export default function StatsScreen({ navigation }) {
         {/* Achievements Button */}
         <TouchableOpacity
           style={styles.achievementsButton}
-          onPress={() => navigation.navigate('Achievements')}
+          onPress={() => navigation.navigate('Profile', { screen: 'Achievements' })}
           activeOpacity={0.8}
         >
-          <Text style={styles.achievementsButtonText}>🏅 View Achievements</Text>
+          <Text style={styles.achievementsButtonText}>View Achievements</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

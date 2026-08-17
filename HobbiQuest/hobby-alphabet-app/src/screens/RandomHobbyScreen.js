@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, radius, spacing, typography } from '../theme/colors';
 import { hobbySuggestions } from '../data/hobbySuggestions';
@@ -66,7 +67,7 @@ export default function RandomHobbyScreen({ navigation }) {
               activeTab === 'letter' && styles.tabTextActive,
             ]}
           >
-            🎲 Random Letter
+            Random Letter
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -83,7 +84,7 @@ export default function RandomHobbyScreen({ navigation }) {
               activeTab === 'hobby' && styles.tabTextActive,
             ]}
           >
-            ✨ Random Hobby
+            Random Hobby
           </Text>
         </TouchableOpacity>
       </View>
@@ -116,9 +117,12 @@ export default function RandomHobbyScreen({ navigation }) {
                         {
                           text: 'Add',
                           onPress: () => {
-                            navigation.navigate('AddHobby', {
-                              suggestedName: suggestion,
-                              suggestedLetter: randomLetter,
+                            navigation.navigate('Alphabet', {
+                              screen: 'AddHobby',
+                              params: {
+                                suggestedName: suggestion,
+                                suggestedLetter: randomLetter,
+                              },
                             });
                           },
                         },
@@ -136,7 +140,7 @@ export default function RandomHobbyScreen({ navigation }) {
             {/* Buttons */}
             <TouchableOpacity
               style={styles.primaryButton}
-              onPress={() => navigation.navigate('LetterDetail', { letter: randomLetter })}
+              onPress={() => navigation.navigate('Alphabet', { screen: 'LetterDetail', params: { letter: randomLetter } })}
               activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>Try This Letter</Text>
@@ -156,7 +160,9 @@ export default function RandomHobbyScreen({ navigation }) {
           <View style={styles.section}>
             {/* Hobby Card */}
             <View style={styles.hobbyCard}>
-              <Text style={styles.hobbyEmoji}>🎯</Text>
+              <View style={styles.hobbyIconWrap}>
+                <Ionicons name="sparkles" size={32} color={colors.accent} />
+              </View>
               <Text style={styles.hobbyName}>{randomHobby}</Text>
               <Text style={styles.hobbyDescription}>
                 A hobby that might spark your interest!
@@ -175,8 +181,11 @@ export default function RandomHobbyScreen({ navigation }) {
                     {
                       text: 'Add',
                       onPress: () => {
-                        navigation.navigate('AddHobby', {
-                          suggestedName: randomHobby,
+                        navigation.navigate('Alphabet', {
+                          screen: 'AddHobby',
+                          params: {
+                            suggestedName: randomHobby,
+                          },
                         });
                       },
                     },
@@ -313,8 +322,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  hobbyEmoji: {
-    fontSize: 60,
+  hobbyIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.accentMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.md,
   },
   hobbyName: {

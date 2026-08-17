@@ -45,7 +45,7 @@ export default function AlphabetScreen({ navigation }) {
           <LetterTile
             letter={item}
             hobbies={data[item]?.hobbies || []}
-            onPress={() => navigation.navigate('LetterDetail', { letter: item })}
+            onPress={() => navigation.navigate('Alphabet', { screen: 'LetterDetail', params: { letter: item } })}
           />
         )}
       />

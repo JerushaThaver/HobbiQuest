@@ -175,9 +175,12 @@ export default function CalendarScreen({ navigation }) {
                     <TouchableOpacity
                       style={styles.activityCard}
                       onPress={() =>
-                        navigation.navigate('HobbyTrackerDetail', {
-                          letter: activity.letter,
-                          hobbyId: activity.hobbyId,
+                        navigation.navigate('Tracker', {
+                          screen: 'HobbyTrackerDetail',
+                          params: {
+                            letter: activity.letter,
+                            hobbyId: activity.hobbyId,
+                          },
                         })
                       }
                       activeOpacity={0.7}

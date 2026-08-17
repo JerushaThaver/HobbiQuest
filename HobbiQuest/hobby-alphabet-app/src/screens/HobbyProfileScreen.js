@@ -159,7 +159,7 @@ export default function HobbyProfileScreen({ route, navigation }) {
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionLabel}>ACTIVITY</Text>
           <TouchableOpacity
-            onPress={() => navigation.navigate('LogSession', { letter, hobbyId })}
+            onPress={() => navigation.navigate('Tracker', { screen: 'LogSession', params: { letter, hobbyId } })}
           >
             <Text style={styles.addLink}>+ Log Activity</Text>
           </TouchableOpacity>
@@ -191,7 +191,7 @@ export default function HobbyProfileScreen({ route, navigation }) {
 
         <TouchableOpacity
           style={styles.logButton}
-          onPress={() => navigation.navigate('LogSession', { letter, hobbyId })}
+          onPress={() => navigation.navigate('Tracker', { screen: 'LogSession', params: { letter, hobbyId } })}
         >
           <Text style={styles.logButtonText}>+ Log Activity</Text>
         </TouchableOpacity>

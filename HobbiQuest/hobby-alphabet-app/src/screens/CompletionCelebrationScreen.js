@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing, typography } from '../theme/colors';
 import { getAllHobbiesFlat } from '../utils/storage';
 
@@ -30,7 +31,7 @@ export default function CompletionCelebrationScreen({ navigation }) {
   }, [loadHobbies]);
 
   const handleViewCollage = () => {
-    navigation.navigate('Collage');
+    navigation.navigate('Profile', { screen: 'Collage' });
   };
 
   const handleShare = () => {
@@ -45,7 +46,7 @@ export default function CompletionCelebrationScreen({ navigation }) {
   };
 
   const handleContinue = () => {
-    navigation.navigate('Home');
+    navigation.navigate('Home', { screen: 'HomeScreen' });
   };
 
   return (
@@ -53,7 +54,9 @@ export default function CompletionCelebrationScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Celebration Header */}
         <View style={styles.celebrationContainer}>
-          <Text style={styles.celebrationText}>🎉</Text>
+          <View style={styles.celebrationBadge}>
+            <Ionicons name="trophy" size={44} color={colors.accent} />
+          </View>
           <Text style={styles.title}>You Did It!</Text>
           <Text style={styles.subtitle}>
             You've completed your Hobby Alphabet!
@@ -63,7 +66,7 @@ export default function CompletionCelebrationScreen({ navigation }) {
 
         {/* Achievement Badge */}
         <View style={styles.badgeContainer}>
-          <Text style={styles.badge}>👑</Text>
+          <View style={styles.badge}><Ionicons name="medal" size={32} color={colors.accent} /></View>
           <Text style={styles.badgeText}>Alphabet Master</Text>
         </View>
 
@@ -103,7 +106,7 @@ export default function CompletionCelebrationScreen({ navigation }) {
             onPress={handleViewCollage}
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryButtonText}>📸 View My Collage</Text>
+            <Text style={styles.primaryButtonText}>View My Collage</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -111,7 +114,7 @@ export default function CompletionCelebrationScreen({ navigation }) {
             onPress={handleShare}
             activeOpacity={0.8}
           >
-            <Text style={styles.secondaryButtonText}>📤 Share Achievement</Text>
+            <Text style={styles.secondaryButtonText}>Share Achievement</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
