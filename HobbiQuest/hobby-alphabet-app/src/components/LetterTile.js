@@ -41,12 +41,12 @@ export default function LetterTile({ letter, hobbies = [], onPress }) {
   );
 }
 
-const TILE_SIZE = 100;
+const TILE_SIZE = 114;
 
 const styles = StyleSheet.create({
   tile: {
     width: TILE_SIZE,
-    height: TILE_SIZE,
+    height: 124,
     borderRadius: radius.md,
     margin: spacing.xs,
     overflow: 'hidden',

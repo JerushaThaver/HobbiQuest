@@ -36,16 +36,32 @@ export default function CalendarScreen({ navigation }) {
     const dates = await getDatesWithActivities(currentYear, currentMonth);
     setDatesWithActivity(dates);
 
-    // Load activities for today if no date selected yet
     if (selectedDate === null) {
-      const today = now.toISOString().split('T')[0];
-      const activities = await getActivitiesForDate(today);
+      const fallbackDate =
+        new Date(currentYear, currentMonth, 1).toISOString().split('T')[0];
+      const monthStartDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+      const activitiesForMonthStart = await getActivitiesForDate(monthStartDate);
+
+      const firstAvailableDate = dates.length
+        ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dates[0]).padStart(2, '0')}`
+        : null;
+
+      const dateToSelect = firstAvailableDate || fallbackDate;
+      const activities = dateToSelect ? await getActivitiesForDate(dateToSelect) : [];
+
       if (activities.length > 0) {
-        setSelectedDate(today);
+        setSelectedDate(dateToSelect);
         setSelectedActivities(activities);
+      } else if (activitiesForMonthStart.length > 0) {
+        const firstDate = activitiesForMonthStart[0].date.split('T')[0];
+        setSelectedDate(firstDate);
+        setSelectedActivities(activitiesForMonthStart);
+      } else {
+        setSelectedDate(dateToSelect);
+        setSelectedActivities([]);
       }
     }
-  }, [currentYear, currentMonth, selectedDate, now]);
+  }, [currentYear, currentMonth, selectedDate]);
 
   useFocusEffect(
     useCallback(() => {
@@ -71,6 +87,12 @@ export default function CalendarScreen({ navigation }) {
       setCurrentMonth(currentMonth + 1);
     }
     setSelectedDate(null);
+  };
+
+  const isSelectedDay = (day) => {
+    if (!day || !selectedDate) return false;
+    const date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return date === selectedDate;
   };
 
   const handleDayPress = async (day) => {
@@ -122,9 +144,7 @@ export default function CalendarScreen({ navigation }) {
                 key={idx}
                 style={[
                   styles.dayCell,
-                  selectedDate && selectedDate.endsWith(String(day).padStart(2, '0'))
-                    ? styles.dayCellSelected
-                    : null,
+                  isSelectedDay(day) ? styles.dayCellSelected : null,
                 ]}
                 onPress={() => day && handleDayPress(day)}
                 disabled={!day}
@@ -135,9 +155,7 @@ export default function CalendarScreen({ navigation }) {
                     <Text
                       style={[
                         styles.dayText,
-                        selectedDate && selectedDate.endsWith(String(day).padStart(2, '0'))
-                          ? styles.dayTextSelected
-                          : null,
+                        isSelectedDay(day) ? styles.dayTextSelected : null,
                       ]}
                     >
                       {day}

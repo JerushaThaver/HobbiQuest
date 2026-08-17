@@ -125,7 +125,7 @@ export default function AchievementsScreen() {
         numColumns={2}
         columnWrapperStyle={styles.gridWrapper}
         contentContainerStyle={styles.listContent}
-        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );
