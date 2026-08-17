@@ -1,3 +1,13 @@
+export const CATEGORIES = [
+  'Creative',
+  'Outdoor',
+  'Physical',
+  'Social',
+  'Relaxation',
+  'Learning',
+  'Other',
+];
+
 export const hobbySuggestions = {
   A: ['Archery', 'Astronomy', 'Animation'],
   B: ['Birdwatching', 'Baking', 'Bouldering'],

@@ -1,29 +1,28 @@
-// Neutral, professional color palette.
-// Warm off-white base, charcoal text, soft stone accents, one muted
-// slate-blue accent reserved for progress/active states.
+// Warm, earthy, professional color palette.
+// Cream base, brown/charcoal text, sage completion accent, ochre for ratings.
 
 export const colors = {
-  background: '#F6F5F2',       // warm off-white
-  surface: '#FFFFFF',          // cards
-  surfaceMuted: '#EFEDE8',     // subtle panels / empty tiles
+  background: '#F5F1E8',       // warm cream
+  surface: '#FFFDF8',          // cards
+  surfaceMuted: '#EAE1D5',     // soft beige panels / empty tiles
 
-  border: '#E1DED7',
-  borderStrong: '#C9C5BC',
+  border: '#E1D5C4',
+  borderStrong: '#D8C8B8',     // light brown
 
-  textPrimary: '#2A2926',      // near-black charcoal
-  textSecondary: '#6B6862',    // warm gray
-  textMuted: '#9B9790',
+  textPrimary: '#3E3028',      // dark brown
+  textSecondary: '#7A6A5C',    // warm gray-brown
+  textMuted: '#A79688',
 
-  accent: '#4A5568',           // muted slate blue-gray (primary actions)
-  accentMuted: '#DDE1E6',      // accent tint for backgrounds
-  accentDark: '#333B47',
+  accent: '#795548',           // primary brown
+  accentMuted: '#EAE1D5',      // accent tint for backgrounds
+  accentDark: '#3E3028',
 
-  success: '#5B7A63',          // muted sage green (completed)
-  successMuted: '#E4EAE5',
+  success: '#7A8664',          // muted olive/sage (completed)
+  successMuted: '#E9ECE3',
 
-  warning: '#A9762F',          // muted ochre (optional use)
+  warning: '#B78335',          // warm ochre (ratings)
 
-  overlay: 'rgba(20, 19, 17, 0.45)',
+  overlay: 'rgba(62, 48, 40, 0.45)',
 
   white: '#FFFFFF',
   black: '#000000',
