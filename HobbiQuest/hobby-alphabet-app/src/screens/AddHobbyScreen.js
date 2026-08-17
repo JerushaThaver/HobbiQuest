@@ -20,9 +20,10 @@ import { hobbySuggestions, CATEGORIES } from '../data/hobbySuggestions';
 const STAR_VALUES = [1, 2, 3, 4, 5];
 
 export default function AddHobbyScreen({ route, navigation }) {
-  const { letter } = route.params;
+  const { letter, suggestedName, suggestedLetter } = route.params;
+  const resolvedLetter = suggestedLetter || letter;
 
-  const [hobbyName, setHobbyName] = useState('');
+  const [hobbyName, setHobbyName] = useState(suggestedName || '');
   const [category, setCategory] = useState('Other');
   const [notes, setNotes] = useState('');
   const [rating, setRating] = useState(0);
@@ -31,8 +32,8 @@ export default function AddHobbyScreen({ route, navigation }) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    navigation.setOptions({ title: `Add Hobby · ${letter}` });
-  }, [letter]);
+    navigation.setOptions({ title: `Add Hobby · ${resolvedLetter}` });
+  }, [resolvedLetter]);
 
   const takePhoto = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -74,7 +75,7 @@ export default function AddHobbyScreen({ route, navigation }) {
     }
     setSaving(true);
     try {
-      await addHobby(letter, {
+      await addHobby(resolvedLetter, {
         name: hobbyName.trim(),
         category,
         notes: notes.trim(),
@@ -90,7 +91,7 @@ export default function AddHobbyScreen({ route, navigation }) {
     }
   };
 
-  const suggestions = hobbySuggestions[letter] || [];
+  const suggestions = hobbySuggestions[resolvedLetter] || [];
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>

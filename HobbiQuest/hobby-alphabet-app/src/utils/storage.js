@@ -269,3 +269,249 @@ export async function getSessionStats(letter, hobbyId) {
     lastSessionDate,
   };
 }
+
+// ---- Achievement & Stats Helpers ----
+
+export const ACHIEVEMENTS = [
+  {
+    id: 'first-step',
+    name: 'First Step',
+    description: 'Add your first hobby.',
+    icon: '🏅',
+    condition: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      return flat.length >= 1;
+    },
+    progress: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      return { current: flat.length, target: 1 };
+    },
+  },
+  {
+    id: 'getting-started',
+    name: 'Getting Started',
+    description: 'Complete 5 letters.',
+    icon: '🌱',
+    condition: (data) => Object.keys(data).filter((k) => (data[k]?.hobbies?.length || 0) > 0).length >= 5,
+    progress: (data) => {
+      const completed = Object.keys(data).filter((k) => (data[k]?.hobbies?.length || 0) > 0).length;
+      return { current: completed, target: 5 };
+    },
+  },
+  {
+    id: 'hobby-explorer',
+    name: 'Hobby Explorer',
+    description: 'Add 10 different hobbies.',
+    icon: '⭐',
+    condition: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      return flat.length >= 10;
+    },
+    progress: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      return { current: flat.length, target: 10 };
+    },
+  },
+  {
+    id: 'seven-day-streak',
+    name: '7 Day Streak',
+    description: 'Log a hobby for 7 consecutive days.',
+    icon: '🔥',
+    condition: (data) => calculateLongestStreak(data) >= 7,
+    progress: (data) => {
+      const streak = calculateLongestStreak(data);
+      return { current: streak, target: 7 };
+    },
+  },
+  {
+    id: 'memory-keeper',
+    name: 'Memory Keeper',
+    description: 'Add 25 hobby photos.',
+    icon: '📸',
+    condition: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      const totalPhotos = flat.reduce((sum, h) => sum + (h.photos?.length || 0), 0);
+      return totalPhotos >= 25;
+    },
+    progress: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      const totalPhotos = flat.reduce((sum, h) => sum + (h.photos?.length || 0), 0);
+      return { current: totalPhotos, target: 25 };
+    },
+  },
+  {
+    id: 'committed',
+    name: 'Committed',
+    description: 'Track a hobby for 30 days.',
+    icon: '🎯',
+    condition: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      return flat.some((h) => {
+        if (!h.tracking || !h.createdAt) return false;
+        const createdDate = new Date(h.createdAt);
+        const daysSinceCreated = (Date.now() - createdDate) / (1000 * 60 * 60 * 24);
+        return daysSinceCreated >= 30;
+      });
+    },
+    progress: (data) => {
+      const flat = Object.keys(data)
+        .flatMap((letter) => data[letter]?.hobbies || []);
+      const maxDays = Math.max(
+        ...flat.map((h) => {
+          if (!h.createdAt) return 0;
+          const createdDate = new Date(h.createdAt);
+          return (Date.now() - createdDate) / (1000 * 60 * 60 * 24);
+        }),
+        0
+      );
+      return { current: Math.floor(maxDays), target: 30 };
+    },
+  },
+  {
+    id: 'halfway-there',
+    name: 'Halfway There',
+    description: 'Complete 13 letters.',
+    icon: '🔤',
+    condition: (data) =>
+      Object.keys(data).filter((k) => (data[k]?.hobbies?.length || 0) > 0).length >= 13,
+    progress: (data) => {
+      const completed = Object.keys(data).filter((k) => (data[k]?.hobbies?.length || 0) > 0).length;
+      return { current: completed, target: 13 };
+    },
+  },
+  {
+    id: 'alphabet-master',
+    name: 'Alphabet Master',
+    description: 'Complete all 26 letters.',
+    icon: '👑',
+    condition: (data) =>
+      Object.keys(data).filter((k) => (data[k]?.hobbies?.length || 0) > 0).length === 26,
+    progress: (data) => {
+      const completed = Object.keys(data).filter((k) => (data[k]?.hobbies?.length || 0) > 0).length;
+      return { current: completed, target: 26 };
+    },
+  },
+];
+
+function calculateLongestStreak(data) {
+  const flat = Object.keys(data)
+    .flatMap((letter) => data[letter]?.hobbies || []);
+  
+  const allDates = [];
+  flat.forEach((hobby) => {
+    (hobby.sessions || []).forEach((session) => {
+      const dateStr = new Date(session.date).toISOString().split('T')[0];
+      if (!allDates.includes(dateStr)) {
+        allDates.push(dateStr);
+      }
+    });
+  });
+
+  if (allDates.length === 0) return 0;
+
+  allDates.sort();
+  let longestStreak = 1;
+  let currentStreak = 1;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  for (let i = 1; i < allDates.length; i++) {
+    const prevDate = new Date(allDates[i - 1]);
+    const currDate = new Date(allDates[i]);
+    const dayDiff = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
+
+    if (dayDiff === 1) {
+      currentStreak++;
+      longestStreak = Math.max(longestStreak, currentStreak);
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  return longestStreak;
+}
+
+export async function getUnlockedAchievements() {
+  const data = await loadData();
+  return ACHIEVEMENTS.filter((ach) => ach.condition(data));
+}
+
+export async function getAllAchievementsWithProgress() {
+  const data = await loadData();
+  return ACHIEVEMENTS.map((ach) => ({
+    ...ach,
+    unlocked: ach.condition(data),
+    progress: ach.progress(data),
+  }));
+}
+
+export async function getMostActiveHobbies(limit = 3) {
+  const flat = await getAllHobbiesFlat();
+  return flat
+    .map((h) => ({
+      ...h,
+      sessionCount: (h.sessions || []).length,
+    }))
+    .sort((a, b) => b.sessionCount - a.sessionCount)
+    .slice(0, limit);
+}
+
+export async function getCategoryStats() {
+  const flat = await getAllHobbiesFlat();
+  const categoryMap = {};
+
+  flat.forEach((hobby) => {
+    const cat = hobby.category || 'Other';
+    if (!categoryMap[cat]) categoryMap[cat] = 0;
+    categoryMap[cat]++;
+  });
+
+  return Object.entries(categoryMap)
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export async function getCurrentStreak() {
+  const data = await loadData();
+  const flat = Object.keys(data)
+    .flatMap((letter) => data[letter]?.hobbies || []);
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+  const allDates = new Set();
+  flat.forEach((hobby) => {
+    (hobby.sessions || []).forEach((session) => {
+      const dateStr = new Date(session.date).toISOString().split('T')[0];
+      allDates.add(dateStr);
+    });
+  });
+
+  if (!allDates.has(todayStr) && !allDates.has(yesterdayStr)) return 0;
+
+  const sortedDates = Array.from(allDates).sort().reverse();
+  let streak = 0;
+
+  for (const dateStr of sortedDates) {
+    const date = new Date(dateStr);
+    const expectedDate = new Date();
+    expectedDate.setDate(expectedDate.getDate() - streak);
+    expectedDate.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+
+    if (date.getTime() === expectedDate.getTime()) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}

@@ -149,7 +149,12 @@ export default function HomeScreen({ navigation }) {
           <QuickActionCard
             emoji="📊"
             label="Stats"
-            onPress={() => comingSoon('Stats')}
+            onPress={() => navigation.navigate('Stats')}
+          />
+          <QuickActionCard
+            emoji="✨"
+            label="Discover"
+            onPress={() => navigation.navigate('RandomHobby')}
           />
         </View>
       </ScrollView>
