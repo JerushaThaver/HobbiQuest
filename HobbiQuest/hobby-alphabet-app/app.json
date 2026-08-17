@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Hobby Alphabet",
+    "slug": "hobby-alphabet",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#F5F4F1"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Hobby Alphabet uses your camera to capture photos of each hobby you complete.",
+        "NSPhotoLibraryUsageDescription": "Hobby Alphabet needs access to your photo library so you can attach existing photos to a hobby entry."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F5F4F1"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Hobby Alphabet needs access to your photos to attach them to hobby entries.",
+          "cameraPermission": "Hobby Alphabet needs access to your camera to take photos of your hobbies."
+        }
+      ]
+    ]
+  }
+}
